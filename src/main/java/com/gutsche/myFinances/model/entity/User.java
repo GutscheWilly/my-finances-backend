@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Table(name = "user", schema = "finances")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -11,7 +12,6 @@ import lombok.*;
 @EqualsAndHashCode
 @ToString
 @Builder
-@Table(name = "user", schema = "finances")
 public class User {
 
     @Id
