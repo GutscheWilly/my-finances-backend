@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "launch", schema = "finances")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -17,7 +18,6 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @ToString
 @Builder
-@Table(name = "launch", schema = "finances")
 public class Launch {
 
     @Id
