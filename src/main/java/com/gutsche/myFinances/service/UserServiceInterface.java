@@ -8,5 +8,5 @@ public interface UserServiceInterface {
 
     User registerUser(User user);
 
-    boolean validateEmail(String email);
+    void validateEmail(String email);
 }
