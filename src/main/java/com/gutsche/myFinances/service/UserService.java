@@ -28,7 +28,7 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public void validateEmail(String email) {
-        boolean isRegisteredEmail = userRepository.findByEmail(email).isPresent();
+        boolean isRegisteredEmail = userRepository.existsByEmail(email);
 
         if (isRegisteredEmail) {
             throw new BusinessRuleException("This email has already been registered by other user!");
