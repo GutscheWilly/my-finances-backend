@@ -22,8 +22,19 @@ public class UserRepositoryTest {
         User user = User.builder().name("user").email("user@gmail.com").password("123456").build();
         userRepository.save(user);
 
-        boolean isRegisteredEmail = userRepository.existsByEmail(user.getEmail());
+        String registeredEmail = user.getEmail();
+        boolean isRegisteredEmail = userRepository.existsByEmail(registeredEmail);
 
         Assertions.assertThat(isRegisteredEmail).isTrue();
+    }
+
+    @Test
+    public void checkUnregisteredEmail() {
+        userRepository.deleteAll();
+
+        String unregisteredEmail = "user@gmail.com";
+        boolean isRegisteredEmail = userRepository.existsByEmail(unregisteredEmail);
+
+        Assertions.assertThat(isRegisteredEmail).isFalse();
     }
 }
