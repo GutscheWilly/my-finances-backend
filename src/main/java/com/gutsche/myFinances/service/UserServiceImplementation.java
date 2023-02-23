@@ -5,6 +5,7 @@ import com.gutsche.myFinances.model.repository.UserRepository;
 import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImplementation implements UserService {
@@ -22,8 +23,10 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
+    @Transactional
     public User registerUser(User user) {
-        return null;
+        validateEmailToRegister(user.getEmail());
+        return userRepository.save(user);
     }
 
     @Override
