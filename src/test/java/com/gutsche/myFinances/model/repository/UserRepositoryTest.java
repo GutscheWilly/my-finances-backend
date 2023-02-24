@@ -19,7 +19,8 @@ public class UserRepositoryTest {
 
     @Test
     public void checkRegisteredEmail() {
-        User user = User.builder().name("user").email("user@gmail.com").password("123456").build();
+        resetContext();
+        User user = createUser();
         userRepository.save(user);
 
         String registeredEmail = user.getEmail();
@@ -30,11 +31,56 @@ public class UserRepositoryTest {
 
     @Test
     public void checkUnregisteredEmail() {
-        userRepository.deleteAll();
+        resetContext();
 
         String unregisteredEmail = "user@gmail.com";
         boolean isRegisteredEmail = userRepository.existsByEmail(unregisteredEmail);
 
         Assertions.assertThat(isRegisteredEmail).isFalse();
+    }
+
+    @Test
+    public void shouldCreateUserIdAfterRegister() {
+        resetContext();
+        User user = createUser();
+
+        User userAfterRegister = userRepository.save(user);
+        Long id = userAfterRegister.getId();
+
+        Assertions.assertThat(id).isNotNull();
+    }
+
+    @Test
+    public void shouldFindRegisteredUserByEmail() {
+        resetContext();
+        User user = createUser();
+        userRepository.save(user);
+
+        String registeredEmail = user.getEmail();
+        boolean isUserFoundByEmail = userRepository.findByEmail(registeredEmail).isPresent();
+
+        Assertions.assertThat(isUserFoundByEmail).isTrue();
+    }
+
+    @Test
+    public void shouldNotFindUserByEmail() {
+        resetContext();
+
+        String unregisteredEmail = "user@gmail.com";
+        boolean isUserFoundByEmail = userRepository.findByEmail(unregisteredEmail).isPresent();
+
+        Assertions.assertThat(isUserFoundByEmail).isFalse();
+    }
+
+    private static User createUser() {
+        return User.builder()
+                .name("user")
+                .email("user@gmail.com")
+                .password("123456")
+                .build();
+    }
+
+    private void resetContext() {
+        userRepository.deleteAll();
     }
 }
