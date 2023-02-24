@@ -1,42 +1,44 @@
 package com.gutsche.myFinances.service;
 
-import com.gutsche.myFinances.model.entity.User;
 import com.gutsche.myFinances.model.repository.UserRepository;
 import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@SpringBootTest
 @ExtendWith(SpringExtension.class)
 @Profile("test")
 public class UserServiceTest {
 
-    @Autowired
+    @MockBean
+    private UserRepository userRepository;
+
     private UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
+    @BeforeEach
+    public void setup() {
+        userService = new UserServiceImplementation(userRepository);
+    }
 
     @Test
     public void shouldNotThrowAnyExceptionForValidEmailToRegister() {
-        userRepository.deleteAll();
+        Mockito.when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(false);
 
-        String validEmail = "user@gmail.com";
+        String validEmail = "unregisteredUser@gmail.com";
 
         Assertions.assertDoesNotThrow(() -> userService.validateEmailToRegister(validEmail));
     }
 
     @Test
-    public void shouldThrownBusinessRuleExceptionForInvalidEmailToRegister() {
-        User user = User.builder().name("user").email("user@gmail.com").password("123456").build();
-        userRepository.save(user);
+    public void shouldThrowBusinessRuleExceptionForInvalidEmailToRegister() {
+        Mockito.when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(true);
 
-        String invalidEmail = user.getEmail();
+        String invalidEmail = "registeredUser@gmail.com";
 
         Assertions.assertThrows(BusinessRuleException.class, () -> userService.validateEmailToRegister(invalidEmail));
     }
