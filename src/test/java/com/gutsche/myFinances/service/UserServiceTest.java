@@ -3,6 +3,7 @@ package com.gutsche.myFinances.service;
 import com.gutsche.myFinances.model.entity.User;
 import com.gutsche.myFinances.model.repository.UserRepository;
 import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
+import com.gutsche.myFinances.service.exceptions.LoginException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,20 @@ public class UserServiceTest {
         User returnedUser = userService.validateLogin(email, password);
 
         Assertions.assertEquals(returnedUser, user);
+    }
+
+    @Test
+    public void shouldThrowLoginExceptionBecauseEmailIsNotRegistered() {
+        String unregisteredEmail = "unregisteredUser@gmail.com";
+        String password = "123456";
+
+        Mockito.when(userRepository.findByEmail(unregisteredEmail)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(
+                LoginException.class,
+                () -> userService.validateLogin(unregisteredEmail, password),
+                "There's no user registered with this email!"
+        );
     }
 
     @Test
