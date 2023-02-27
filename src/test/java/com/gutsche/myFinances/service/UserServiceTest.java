@@ -5,11 +5,11 @@ import com.gutsche.myFinances.model.repository.UserRepository;
 import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
 import com.gutsche.myFinances.service.exceptions.LoginException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -22,12 +22,8 @@ public class UserServiceTest {
     @MockBean
     private UserRepository userRepository;
 
-    private UserService userService;
-
-    @BeforeEach
-    public void setup() {
-        userService = new UserServiceImplementation(userRepository);
-    }
+    @SpyBean
+    private UserServiceImplementation userService;
 
     @Test
     public void shouldLoginUserSuccessful() {
@@ -65,6 +61,30 @@ public class UserServiceTest {
 
         LoginException loginException = Assertions.assertThrows(LoginException.class, () -> userService.validateLogin(registeredEmail, incorrectPassword));
         Assertions.assertEquals("Incorrect password!", loginException.getMessage());
+    }
+
+    @Test
+    public void shouldRegisterUserSuccessful() {
+        String unregisteredEmail = "unregisteredEmail@gmail.com";
+        User user = User.builder().id(1L).name("user").email(unregisteredEmail).password("123456").build();
+
+        Mockito.doNothing().when(userService).validateEmailToRegister(unregisteredEmail);
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(user);
+
+        User returnedUser = userService.registerUser(new User());
+
+        Assertions.assertEquals(returnedUser, user);
+    }
+
+    @Test
+    public void shouldNotSaveUserWithEmailAlreadyRegistered() {
+        String registeredEmail = "registeredEmail@gmail.com";
+        User user = User.builder().id(1L).name("user").email(registeredEmail).password("123456").build();
+
+        Mockito.doThrow(BusinessRuleException.class).when(userService).validateEmailToRegister(registeredEmail);
+        Mockito.verify(userRepository, Mockito.never()).save(user);
+
+        Assertions.assertThrows(BusinessRuleException.class, () -> userService.registerUser(user));
     }
 
     @Test
