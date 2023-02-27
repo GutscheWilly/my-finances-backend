@@ -64,6 +64,19 @@ public class UserServiceTest {
     }
 
     @Test
+    public void shouldRegisterUserSuccessful() {
+        String unregisteredEmail = "unregisteredEmail@gmail.com";
+        User user = User.builder().id(1L).name("user").email(unregisteredEmail).password("123456").build();
+
+        Mockito.doNothing().when(userService).validateEmailToRegister(unregisteredEmail);
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(user);
+
+        User returnedUser = userService.registerUser(new User());
+
+        Assertions.assertEquals(returnedUser, user);
+    }
+
+    @Test
     public void shouldNotThrowAnyExceptionForValidEmailToRegister() {
         Mockito.when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(false);
 
