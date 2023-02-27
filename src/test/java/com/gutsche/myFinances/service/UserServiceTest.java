@@ -49,11 +49,22 @@ public class UserServiceTest {
 
         Mockito.when(userRepository.findByEmail(unregisteredEmail)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(
-                LoginException.class,
-                () -> userService.validateLogin(unregisteredEmail, password),
-                "There's no user registered with this email!"
-        );
+        LoginException loginException = Assertions.assertThrows(LoginException.class, () -> userService.validateLogin(unregisteredEmail, password));
+        Assertions.assertEquals("There's no user registered with this email!", loginException.getMessage());
+    }
+
+    @Test
+    public void shouldThrowLoginExceptionBecausePasswordIsIncorrect() {
+        String registeredEmail = "registeredUser@gmail.com";
+        String incorrectPassword = "incorrect password";
+
+        String correctPassword = "correct password";
+        User user = User.builder().id(1L).name("user").email(registeredEmail).password(correctPassword).build();
+
+        Mockito.when(userRepository.findByEmail(registeredEmail)).thenReturn(Optional.of(user));
+
+        LoginException loginException = Assertions.assertThrows(LoginException.class, () -> userService.validateLogin(registeredEmail, incorrectPassword));
+        Assertions.assertEquals("Incorrect password!", loginException.getMessage());
     }
 
     @Test
