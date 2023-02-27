@@ -5,11 +5,11 @@ import com.gutsche.myFinances.model.repository.UserRepository;
 import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
 import com.gutsche.myFinances.service.exceptions.LoginException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -22,12 +22,8 @@ public class UserServiceTest {
     @MockBean
     private UserRepository userRepository;
 
-    private UserService userService;
-
-    @BeforeEach
-    public void setup() {
-        userService = new UserServiceImplementation(userRepository);
-    }
+    @SpyBean
+    private UserServiceImplementation userService;
 
     @Test
     public void shouldLoginUserSuccessful() {
