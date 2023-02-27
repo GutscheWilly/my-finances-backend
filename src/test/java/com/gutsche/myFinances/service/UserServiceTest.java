@@ -77,6 +77,17 @@ public class UserServiceTest {
     }
 
     @Test
+    public void shouldNotSaveUserWithEmailAlreadyRegistered() {
+        String registeredEmail = "registeredEmail@gmail.com";
+        User user = User.builder().id(1L).name("user").email(registeredEmail).password("123456").build();
+
+        Mockito.doThrow(BusinessRuleException.class).when(userService).validateEmailToRegister(registeredEmail);
+        Mockito.verify(userRepository, Mockito.never()).save(user);
+
+        Assertions.assertThrows(BusinessRuleException.class, () -> userService.registerUser(user));
+    }
+
+    @Test
     public void shouldNotThrowAnyExceptionForValidEmailToRegister() {
         Mockito.when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(false);
 
