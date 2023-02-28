@@ -40,8 +40,10 @@ public class LaunchServiceImplementation implements LaunchService {
     }
 
     @Override
+    @Transactional
     public void delete(Launch launch) {
-
+        Objects.requireNonNull(launch.getId());
+        launchRepository.delete(launch);
     }
 
     @Override
