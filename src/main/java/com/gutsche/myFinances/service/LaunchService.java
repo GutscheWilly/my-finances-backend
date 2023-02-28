@@ -16,4 +16,6 @@ public interface LaunchService {
     void delete(Launch launch);
 
     List<Launch> search(Launch filteredLaunch);
+
+    void validateLaunch(Launch launch);
 }
