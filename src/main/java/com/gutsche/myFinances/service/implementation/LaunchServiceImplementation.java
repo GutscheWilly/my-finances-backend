@@ -29,6 +29,8 @@ public class LaunchServiceImplementation implements LaunchService {
     @Override
     @Transactional
     public Launch save(Launch launch) {
+        validateLaunch(launch);
+        launch.setStatus(LaunchStatus.PENDENT);
         return launchRepository.save(launch);
     }
 
@@ -36,6 +38,7 @@ public class LaunchServiceImplementation implements LaunchService {
     @Transactional
     public Launch update(Launch launch) {
         Objects.requireNonNull(launch.getId());
+        validateLaunch(launch);
         return launchRepository.save(launch);
     }
 
