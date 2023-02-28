@@ -86,6 +86,10 @@ public class LaunchServiceImplementation implements LaunchService {
         if (isNull(launch.getUser()) || isInvalidUser(launch.getUser())) {
             throw new BusinessRuleException("Enter a valid user!");
         }
+
+        if (isNull(launch.getType())) {
+            throw new BusinessRuleException("Enter a type of launch!");
+        }
     }
 
     private boolean isNull(Object object) {
