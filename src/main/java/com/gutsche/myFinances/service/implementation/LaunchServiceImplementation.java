@@ -36,7 +36,8 @@ public class LaunchServiceImplementation implements LaunchService {
 
     @Override
     public void updateStatus(Launch launch, LaunchStatus launchStatus) {
-
+        launch.setStatus(launchStatus);
+        update(launch);
     }
 
     @Override
