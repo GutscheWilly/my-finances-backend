@@ -5,6 +5,8 @@ import com.gutsche.myFinances.model.entity.enums.LaunchStatus;
 import com.gutsche.myFinances.model.repository.LaunchRepository;
 import com.gutsche.myFinances.service.LaunchService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +50,15 @@ public class LaunchServiceImplementation implements LaunchService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Launch> search(Launch filteredLaunch) {
-        return null;
+        Example<Launch> launchExample = Example.of(
+                filteredLaunch,
+                ExampleMatcher.matching()
+                        .withIgnoreCase()
+                        .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING)
+        );
+
+        return launchRepository.findAll(launchExample);
     }
 }
