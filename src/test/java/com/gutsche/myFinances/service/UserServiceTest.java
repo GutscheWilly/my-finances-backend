@@ -4,6 +4,7 @@ import com.gutsche.myFinances.model.entity.User;
 import com.gutsche.myFinances.model.repository.UserRepository;
 import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
 import com.gutsche.myFinances.service.exceptions.LoginException;
+import com.gutsche.myFinances.service.implementation.UserServiceImplementation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
