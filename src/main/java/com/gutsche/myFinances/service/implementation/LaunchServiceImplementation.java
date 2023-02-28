@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class LaunchServiceImplementation implements LaunchService {
@@ -27,8 +28,10 @@ public class LaunchServiceImplementation implements LaunchService {
     }
 
     @Override
+    @Transactional
     public Launch update(Launch launch) {
-        return null;
+        Objects.requireNonNull(launch.getId());
+        return launchRepository.save(launch);
     }
 
     @Override
