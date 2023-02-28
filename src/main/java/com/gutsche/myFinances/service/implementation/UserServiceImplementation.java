@@ -1,7 +1,8 @@
-package com.gutsche.myFinances.service;
+package com.gutsche.myFinances.service.implementation;
 
 import com.gutsche.myFinances.model.entity.User;
 import com.gutsche.myFinances.model.repository.UserRepository;
+import com.gutsche.myFinances.service.UserService;
 import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
 import com.gutsche.myFinances.service.exceptions.LoginException;
 import org.springframework.beans.factory.annotation.Autowired;
