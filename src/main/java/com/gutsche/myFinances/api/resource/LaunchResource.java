@@ -55,6 +55,18 @@ public class LaunchResource {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        try {
+            Launch launch = launchService.findById(id);
+            launchService.delete(launch);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        catch (BusinessRuleException businessRuleException) {
+            return ResponseEntity.badRequest().body(businessRuleException.getMessage());
+        }
+    }
+
     private Launch buildLaunch(LaunchDTO launchDTO) {
         User user = userService.findById(launchDTO.getUser());
         LaunchType launchType = LaunchType.valueOf(launchDTO.getType());
