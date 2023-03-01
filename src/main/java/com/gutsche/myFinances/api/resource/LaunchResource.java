@@ -11,9 +11,7 @@ import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/launches")
@@ -30,11 +28,27 @@ public class LaunchResource {
     }
 
     @PostMapping
-    public ResponseEntity<?> save(LaunchDTO launchDTO) {
+    public ResponseEntity<?> save(@RequestBody LaunchDTO launchDTO) {
         try {
             Launch launch = buildLaunch(launchDTO);
             Launch savedLaunch = launchService.save(launch);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedLaunch);
+        }
+        catch (BusinessRuleException businessRuleException) {
+            return ResponseEntity.badRequest().body(businessRuleException.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody LaunchDTO launchDTO) {
+        try {
+            Launch currentLaunch = launchService.findById(id);
+
+            Launch modifiedLaunch = buildLaunch(launchDTO);
+            modifiedLaunch.setId(currentLaunch.getId());
+
+            Launch updatedLaunch = launchService.update(modifiedLaunch);
+            return ResponseEntity.ok().body(updatedLaunch);
         }
         catch (BusinessRuleException businessRuleException) {
             return ResponseEntity.badRequest().body(businessRuleException.getMessage());
