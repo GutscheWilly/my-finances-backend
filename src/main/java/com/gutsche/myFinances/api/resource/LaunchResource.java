@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/launches")
 public class LaunchResource {
@@ -61,6 +63,18 @@ public class LaunchResource {
             Launch launch = launchService.findById(id);
             launchService.delete(launch);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        catch (BusinessRuleException businessRuleException) {
+            return ResponseEntity.badRequest().body(businessRuleException.getMessage());
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> search(@RequestBody LaunchDTO launchDTO) {
+        try {
+            Launch filteredLaunch = buildLaunch(launchDTO);
+            List<Launch> foundLaunches = launchService.search(filteredLaunch);
+            return ResponseEntity.ok().body(foundLaunches);
         }
         catch (BusinessRuleException businessRuleException) {
             return ResponseEntity.badRequest().body(businessRuleException.getMessage());
