@@ -83,8 +83,16 @@ public class LaunchResource {
 
     private Launch buildLaunch(LaunchDTO launchDTO) {
         User user = userService.findById(launchDTO.getUser());
-        LaunchType launchType = LaunchType.valueOf(launchDTO.getType());
-        LaunchStatus launchStatus = LaunchStatus.valueOf(launchDTO.getStatus());
+        LaunchType type = null;
+        LaunchStatus status = null;
+
+        if (launchDTO.getType() != null) {
+            type = LaunchType.valueOf(launchDTO.getType());
+        }
+
+        if (launchDTO.getStatus() != null) {
+            status = LaunchStatus.valueOf(launchDTO.getStatus());
+        }
 
         return Launch.builder()
                 .id(launchDTO.getId())
@@ -93,8 +101,8 @@ public class LaunchResource {
                 .year(launchDTO.getYear())
                 .value(launchDTO.getValue())
                 .user(user)
-                .type(launchType)
-                .status(launchStatus)
+                .type(type)
+                .status(status)
                 .build();
     }
 }
