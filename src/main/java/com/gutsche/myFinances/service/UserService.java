@@ -9,4 +9,6 @@ public interface UserService {
     User registerUser(User user);
 
     void validateEmailToRegister(String email);
+
+    User findById(Long id);
 }

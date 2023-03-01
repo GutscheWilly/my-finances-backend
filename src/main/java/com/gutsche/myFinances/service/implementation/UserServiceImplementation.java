@@ -51,4 +51,10 @@ public class UserServiceImplementation implements UserService {
             throw new BusinessRuleException("This email has already been registered by other user!");
         }
     }
+
+    @Override
+    public User findById(Long id) {
+        Optional<User> userOptional = userRepository.findById(id);
+        return userOptional.orElseThrow(() -> new BusinessRuleException("User not found by ID!"));
+    }
 }
