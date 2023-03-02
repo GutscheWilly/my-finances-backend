@@ -17,5 +17,7 @@ public interface LaunchService {
 
     List<Launch> search(Launch filteredLaunch);
 
+    Launch findById(Long id);
+
     void validateLaunch(Launch launch);
 }

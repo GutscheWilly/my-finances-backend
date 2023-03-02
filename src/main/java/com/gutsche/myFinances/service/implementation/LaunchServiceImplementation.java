@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class LaunchServiceImplementation implements LaunchService {
@@ -66,6 +67,12 @@ public class LaunchServiceImplementation implements LaunchService {
         );
 
         return launchRepository.findAll(launchExample);
+    }
+
+    @Override
+    public Launch findById(Long id) {
+        Optional<Launch> launchOptional = launchRepository.findById(id);
+        return launchOptional.orElseThrow(() -> new BusinessRuleException("Launch not found by ID!"));
     }
 
     @Override
