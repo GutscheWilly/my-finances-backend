@@ -1,4 +1,4 @@
-package com.gutsche.myFinances.api.resource;
+package com.gutsche.myFinances.api.dto;
 
 import lombok.Builder;
 import lombok.Getter;

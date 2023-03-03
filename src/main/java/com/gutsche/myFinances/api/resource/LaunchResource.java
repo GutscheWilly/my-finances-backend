@@ -1,6 +1,7 @@
 package com.gutsche.myFinances.api.resource;
 
 import com.gutsche.myFinances.api.dto.LaunchDTO;
+import com.gutsche.myFinances.api.dto.UpdateLaunchStatusDTO;
 import com.gutsche.myFinances.model.entity.Launch;
 import com.gutsche.myFinances.model.entity.User;
 import com.gutsche.myFinances.model.entity.enums.LaunchStatus;
