@@ -75,7 +75,7 @@ public class LaunchServiceImplementation implements LaunchService {
         return launchOptional.orElseThrow(() -> new BusinessRuleException("Launch not found by ID!"));
     }
 
-     @Override
+    @Override
     public BigDecimal sumValuesFromFilteredLaunch(Launch filteredLaunch) {
         List<Launch> foundLaunches = search(filteredLaunch);
 
