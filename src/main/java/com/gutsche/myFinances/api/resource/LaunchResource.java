@@ -1,6 +1,7 @@
 package com.gutsche.myFinances.api.resource;
 
 import com.gutsche.myFinances.api.dto.LaunchDTO;
+import com.gutsche.myFinances.api.dto.UpdateLaunchStatusDTO;
 import com.gutsche.myFinances.model.entity.Launch;
 import com.gutsche.myFinances.model.entity.User;
 import com.gutsche.myFinances.model.entity.enums.LaunchStatus;
@@ -54,6 +55,23 @@ public class LaunchResource {
         }
         catch (BusinessRuleException businessRuleException) {
             return ResponseEntity.badRequest().body(businessRuleException.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/update-status")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody UpdateLaunchStatusDTO updateLaunchStatusDTO) {
+        try {
+            Launch launch = launchService.findById(id);
+            LaunchStatus updatedStatus = LaunchStatus.valueOf(updateLaunchStatusDTO.getStatus());
+
+            launchService.updateStatus(launch, updatedStatus);
+            return ResponseEntity.ok().body(launch);
+        }
+        catch (BusinessRuleException businessRuleException) {
+            return ResponseEntity.badRequest().body(businessRuleException.getMessage());
+        }
+        catch (IllegalArgumentException illegalArgumentException) {
+            return ResponseEntity.badRequest().body("Invalid status!");
         }
     }
 

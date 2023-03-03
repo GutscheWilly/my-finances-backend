@@ -76,6 +76,15 @@ public class LaunchServiceImplementation implements LaunchService {
     }
 
     @Override
+    public BigDecimal sumValuesFromFilteredLaunch(Launch filteredLaunch) {
+        List<Launch> foundLaunches = search(filteredLaunch);
+
+        return foundLaunches.stream()
+                .map(Launch::getValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
     public void validateLaunch(Launch launch) {
         if (isNull(launch.getDescription()) || isInvalidDescription(launch.getDescription())) {
             throw new BusinessRuleException("Enter a description!");

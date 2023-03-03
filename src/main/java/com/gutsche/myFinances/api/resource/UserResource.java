@@ -1,7 +1,10 @@
 package com.gutsche.myFinances.api.resource;
 
 import com.gutsche.myFinances.api.dto.UserDTO;
+import com.gutsche.myFinances.model.entity.Launch;
 import com.gutsche.myFinances.model.entity.User;
+import com.gutsche.myFinances.model.entity.enums.LaunchType;
+import com.gutsche.myFinances.service.LaunchService;
 import com.gutsche.myFinances.service.UserService;
 import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
 import com.gutsche.myFinances.service.exceptions.LoginException;
@@ -10,15 +13,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserResource {
 
     private UserService userService;
 
+    private LaunchService launchService;
+
     @Autowired
-    public UserResource(UserService userService) {
+    public UserResource(UserService userService, LaunchService launchService) {
         this.userService = userService;
+        this.launchService = launchService;
     }
 
     @PostMapping("/login")
@@ -39,6 +47,26 @@ public class UserResource {
         try {
             User registeredUser = userService.registerUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
+        }
+        catch (BusinessRuleException businessRuleException) {
+            return ResponseEntity.badRequest().body(businessRuleException.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/balance")
+    public ResponseEntity<?> getBalance(@PathVariable Long id) {
+        try {
+            User user = userService.findById(id);
+
+            Launch filteredRevenue = Launch.builder().user(user).type(LaunchType.REVENUE).build();
+            Launch filteredExpense  =  Launch.builder().user(user).type(LaunchType.EXPENSE).build();
+
+            BigDecimal revenues = launchService.sumValuesFromFilteredLaunch(filteredRevenue);
+            BigDecimal expenses = launchService.sumValuesFromFilteredLaunch(filteredExpense);
+
+            BigDecimal balance = revenues.subtract(expenses);
+
+            return ResponseEntity.ok().body(balance);
         }
         catch (BusinessRuleException businessRuleException) {
             return ResponseEntity.badRequest().body(businessRuleException.getMessage());
