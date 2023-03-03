@@ -57,6 +57,23 @@ public class LaunchResource {
         }
     }
 
+    @PutMapping("/{id}/update-status")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody UpdateLaunchStatusDTO updateLaunchStatusDTO) {
+        try {
+            Launch launch = launchService.findById(id);
+            LaunchStatus updatedStatus = LaunchStatus.valueOf(updateLaunchStatusDTO.getStatus());
+
+            launchService.updateStatus(launch, updatedStatus);
+            return ResponseEntity.ok().body(launch);
+        }
+        catch (BusinessRuleException businessRuleException) {
+            return ResponseEntity.badRequest().body(businessRuleException.getMessage());
+        }
+        catch (IllegalArgumentException illegalArgumentException) {
+            return ResponseEntity.badRequest().body("Invalid status!");
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {
