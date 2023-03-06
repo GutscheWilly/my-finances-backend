@@ -38,14 +38,30 @@ public class LaunchRepositoryTest {
 
     @Test
     public void shouldDeleteLaunch() {
-        Launch launch = buildLaunch();
-        Launch savedLaunch = testEntityManager.persist(launch);
+        Launch savedLaunch = buildAndPersistLaunch();
 
         launchRepository.delete(savedLaunch);
 
         Launch deletedLaunch = testEntityManager.find(Launch.class, savedLaunch.getId());
 
         Assertions.assertNull(deletedLaunch);
+    }
+
+    @Test
+    public void shouldUpdateLaunch() {
+        Launch launch = buildAndPersistLaunch();
+
+        Launch modifiedLaunch = Launch.builder().id(launch.getId()).description("Modified launch").build();
+        launchRepository.save(modifiedLaunch);
+
+        Launch updatedLaunch = testEntityManager.find(Launch.class, launch.getId());
+
+        Assertions.assertEquals(modifiedLaunch, updatedLaunch);
+    }
+
+    private Launch buildAndPersistLaunch() {
+        Launch launch = buildLaunch();
+        return testEntityManager.persist(launch);
     }
 
     private static Launch buildLaunch() {
