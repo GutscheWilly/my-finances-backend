@@ -33,7 +33,19 @@ public class LaunchRepositoryTest {
 
         Launch savedLaunch = launchRepository.save(launch);
 
-        Assertions.assertNotEquals(null, savedLaunch.getId());
+        Assertions.assertNotNull(savedLaunch.getId());
+    }
+
+    @Test
+    public void shouldDeleteLaunch() {
+        Launch launch = buildLaunch();
+        Launch savedLaunch = testEntityManager.persist(launch);
+
+        launchRepository.delete(savedLaunch);
+
+        Launch deletedLaunch = testEntityManager.find(Launch.class, savedLaunch.getId());
+
+        Assertions.assertNull(deletedLaunch);
     }
 
     private static Launch buildLaunch() {
