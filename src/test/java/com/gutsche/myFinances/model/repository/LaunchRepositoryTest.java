@@ -59,6 +59,15 @@ public class LaunchRepositoryTest {
         Assertions.assertEquals(modifiedLaunch, updatedLaunch);
     }
 
+    @Test
+    public void shouldFindLaunchById() {
+        Launch launch = buildAndPersistLaunch();
+
+        boolean isLaunchFound = launchRepository.findById(launch.getId()).isPresent();
+
+        Assertions.assertTrue(isLaunchFound);
+    }
+
     private Launch buildAndPersistLaunch() {
         Launch launch = buildLaunch();
         return testEntityManager.persist(launch);
