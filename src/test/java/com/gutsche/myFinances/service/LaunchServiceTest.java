@@ -79,13 +79,23 @@ public class LaunchServiceTest {
         Mockito.verify(launchRepository, Mockito.never()).save(launchWithoutId);
     }
 
+    @Test
+    public void shouldDeleteLaunch() {
+        Launch launch = buildLaunch();
+        launch.setId(1L);
+
+        launchService.delete(launch);
+
+        Mockito.verify(launchRepository).delete(launch);
+    }
+
     private static Launch buildLaunch() {
         return Launch.builder()
                 .description("Test launch")
                 .month(2)
                 .year(2023)
                 .value(BigDecimal.valueOf(100))
-                .user(User.builder().id(1L).name("user").email("user@gamil.com").password("1234").build())
+                .user(User.builder().id(1L).name("user").email("user@gmail.com").password("1234").build())
                 .type(LaunchType.REVENUE)
                 .build();
     }
