@@ -54,6 +54,22 @@ public class LaunchServiceTest {
         Mockito.verify(launchRepository, Mockito.never()).save(invalidLaunch);
     }
 
+    @Test
+    public void shouldUpdateLaunch() {
+        Launch launch = buildLaunch();
+        launch.setId(1L);
+
+        Mockito.doNothing().when(launchService).validateLaunch(launch);
+
+        Mockito.when(launchRepository.save(launch)).thenReturn(launch);
+
+        Launch updatedLaunch = launchService.update(launch);
+
+        Assertions.assertEquals(updatedLaunch, launch);
+
+        Mockito.verify(launchRepository, Mockito.times(1)).save(launch);
+    }
+
     private static Launch buildLaunch() {
         return Launch.builder()
                 .description("Test launch")
