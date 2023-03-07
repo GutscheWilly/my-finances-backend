@@ -19,6 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -130,6 +131,20 @@ public class LaunchServiceTest {
         Assertions.assertEquals(launch.getStatus(), updatedStatus);
 
         Mockito.verify(launchService).update(launch);
+    }
+
+    @Test
+    public void shouldFindLaunchById() {
+        Long id = 1L;
+
+        Launch launch = buildLaunch();
+        launch.setId(id);
+
+        Mockito.when(launchRepository.findById(id)).thenReturn(Optional.of(launch));
+
+        Launch foundLaunch = launchService.findById(id);
+
+        Assertions.assertEquals(foundLaunch, launch);
     }
 
     private static Launch buildLaunch() {
