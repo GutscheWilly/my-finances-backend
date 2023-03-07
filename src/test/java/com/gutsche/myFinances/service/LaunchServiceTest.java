@@ -4,6 +4,7 @@ import com.gutsche.myFinances.model.entity.Launch;
 import com.gutsche.myFinances.model.entity.User;
 import com.gutsche.myFinances.model.entity.enums.LaunchType;
 import com.gutsche.myFinances.model.repository.LaunchRepository;
+import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
 import com.gutsche.myFinances.service.implementation.LaunchServiceImplementation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,17 @@ public class LaunchServiceTest {
         Launch returnedLaunch = launchService.save(launch);
 
         Assertions.assertEquals(returnedLaunch, savedLaunch);
+    }
+
+    @Test
+    public void shouldNotSaveInvalidLaunch() {
+        Launch invalidLaunch = buildLaunch();
+
+        Mockito.doThrow(BusinessRuleException.class).when(launchService).validateLaunch(invalidLaunch);
+
+        Assertions.assertThrows(BusinessRuleException.class, () -> launchService.save(invalidLaunch));
+
+        Mockito.verify(launchRepository, Mockito.never()).save(invalidLaunch);
     }
 
     private static Launch buildLaunch() {
