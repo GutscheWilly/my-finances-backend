@@ -89,6 +89,15 @@ public class LaunchServiceTest {
         Mockito.verify(launchRepository).delete(launch);
     }
 
+    @Test
+    public void shouldNotDeleteLaunchWithoutId() {
+        Launch launchWithoutId = buildLaunch();
+
+        Assertions.assertThrows(NullPointerException.class, () -> launchService.delete(launchWithoutId));
+
+        Mockito.verify(launchRepository, Mockito.never()).delete(launchWithoutId);
+    }
+
     private static Launch buildLaunch() {
         return Launch.builder()
                 .description("Test launch")
