@@ -70,6 +70,15 @@ public class LaunchServiceTest {
         Mockito.verify(launchRepository, Mockito.times(1)).save(launch);
     }
 
+    @Test
+    public void shouldNotUpdateLaunchWithoutId() {
+        Launch launchWithoutId = buildLaunch();
+
+        Assertions.assertThrows(NullPointerException.class, () -> launchService.update(launchWithoutId));
+
+        Mockito.verify(launchRepository, Mockito.never()).save(launchWithoutId);
+    }
+
     private static Launch buildLaunch() {
         return Launch.builder()
                 .description("Test launch")
