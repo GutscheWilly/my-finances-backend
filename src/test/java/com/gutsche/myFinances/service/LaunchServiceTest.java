@@ -147,6 +147,15 @@ public class LaunchServiceTest {
         Assertions.assertEquals(foundLaunch, launch);
     }
 
+    @Test
+    public void shouldThrowBusinessRuleExceptionWhenTryToFindLaunchByInvalidId() {
+        Long invalidId = 1L;
+
+        Mockito.when(launchRepository.findById(invalidId)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(BusinessRuleException.class, () -> launchService.findById(invalidId));
+    }
+
     private static Launch buildLaunch() {
         return Launch.builder()
                 .description("Test launch")
