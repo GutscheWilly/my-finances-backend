@@ -2,6 +2,7 @@ package com.gutsche.myFinances.service;
 
 import com.gutsche.myFinances.model.entity.Launch;
 import com.gutsche.myFinances.model.entity.User;
+import com.gutsche.myFinances.model.entity.enums.LaunchStatus;
 import com.gutsche.myFinances.model.entity.enums.LaunchType;
 import com.gutsche.myFinances.model.repository.LaunchRepository;
 import com.gutsche.myFinances.service.exceptions.BusinessRuleException;
@@ -112,6 +113,23 @@ public class LaunchServiceTest {
         List<Launch> foundLaunches = launchService.search(filteredLaunch);
 
         Assertions.assertEquals(foundLaunches, launchList);
+    }
+
+    @Test
+    public void shouldUpdateLaunchStatus() {
+        Launch launch = buildLaunch();
+        launch.setId(1L);
+        launch.setStatus(LaunchStatus.PENDENT);
+
+        LaunchStatus updatedStatus = LaunchStatus.CONFIRMED;
+
+        Mockito.doReturn(null).when(launchService).update(launch);
+
+        launchService.updateStatus(launch, updatedStatus);
+
+        Assertions.assertEquals(launch.getStatus(), updatedStatus);
+
+        Mockito.verify(launchService).update(launch);
     }
 
     private static Launch buildLaunch() {
