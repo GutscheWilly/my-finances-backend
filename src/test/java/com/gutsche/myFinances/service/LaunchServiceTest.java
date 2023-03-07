@@ -12,10 +12,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.domain.Example;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -96,6 +98,20 @@ public class LaunchServiceTest {
         Assertions.assertThrows(NullPointerException.class, () -> launchService.delete(launchWithoutId));
 
         Mockito.verify(launchRepository, Mockito.never()).delete(launchWithoutId);
+    }
+
+    @Test
+    public void shouldSearchFilteredLaunch() {
+        Launch filteredLaunch = buildLaunch();
+        filteredLaunch.setId(1L);
+
+        List<Launch> launchList = List.of(filteredLaunch);
+
+        Mockito.when(launchRepository.findAll(Mockito.any(Example.class))).thenReturn(launchList);
+
+        List<Launch> foundLaunches = launchService.search(filteredLaunch);
+
+        Assertions.assertEquals(foundLaunches, launchList);
     }
 
     private static Launch buildLaunch() {
