@@ -158,9 +158,53 @@ public class LaunchServiceTest {
 
     @Test
     public void shouldValidateLaunchSuccessful() {
-        Launch launch = buildLaunch();
+        Launch validLaunch = buildLaunch();
 
-        Assertions.assertDoesNotThrow(() -> launchService.validateLaunch(launch));
+        Assertions.assertDoesNotThrow(() -> launchService.validateLaunch(validLaunch));
+    }
+
+    @Test
+    public void shouldThrowExceptionsForEachInvalidLaunch() {
+        Launch invalidLaunch = Launch.builder().description(null).month(null).year(null).value(null).user(null).type(null).build();
+
+        //Invalid Description
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a description!");
+        invalidLaunch.setDescription("     ");
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a description!");
+        invalidLaunch.setDescription("Test launch");
+
+        //Invalid Month
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a valid month!");
+        invalidLaunch.setMonth(0);
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a valid month!");
+        invalidLaunch.setMonth(1);
+
+        //Invalid Year
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a valid year!");
+        invalidLaunch.setYear(800);
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a valid year!");
+        invalidLaunch.setYear(2023);
+
+        //Invalid Value
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a valid value!");
+        invalidLaunch.setValue(BigDecimal.ZERO);
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a valid value!");
+        invalidLaunch.setValue(BigDecimal.valueOf(100));
+
+        //Invalid User
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a valid user!");
+        invalidLaunch.setUser(User.builder().id(null).build());
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a valid user!");
+        invalidLaunch.setUser(User.builder().id(1L).build());
+
+        //Invalid Type
+        assertInvalidLaunchAndExpectedExceptionMessage(invalidLaunch, "Enter a type of launch!");
+        invalidLaunch.setType(LaunchType.REVENUE);
+    }
+
+    private void assertInvalidLaunchAndExpectedExceptionMessage(Launch invalidLaunch, String expectedExceptionMessage) {
+        Throwable exception = Assertions.assertThrows(BusinessRuleException.class, () -> launchService.validateLaunch(invalidLaunch));
+        Assertions.assertEquals(exception.getMessage(), expectedExceptionMessage);
     }
 
     private static Launch buildLaunch() {
