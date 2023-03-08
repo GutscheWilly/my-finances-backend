@@ -59,7 +59,7 @@ public class UserResource {
             User user = userService.findById(id);
 
             Launch filteredRevenue = Launch.builder().user(user).type(LaunchType.REVENUE).build();
-            Launch filteredExpense  =  Launch.builder().user(user).type(LaunchType.EXPENSE).build();
+            Launch filteredExpense = Launch.builder().user(user).type(LaunchType.EXPENSE).build();
 
             BigDecimal revenues = launchService.sumValuesFromFilteredLaunch(filteredRevenue);
             BigDecimal expenses = launchService.sumValuesFromFilteredLaunch(filteredExpense);
