@@ -157,6 +157,21 @@ public class LaunchServiceTest {
     }
 
     @Test
+    public void shouldSumValuesSuccessfulFromFilteredLaunch() {
+        List<Launch> filteredLaunches = List.of(
+                Launch.builder().value(BigDecimal.valueOf(1000)).build(),
+                Launch.builder().value(BigDecimal.valueOf(500)).build(),
+                Launch.builder().value(BigDecimal.valueOf(300)).build()
+        );
+
+        Mockito.doReturn(filteredLaunches).when(launchService).search(Mockito.any(Launch.class));
+
+        BigDecimal sumValuesResult = launchService.sumValuesFromFilteredLaunch(new Launch());
+
+        Assertions.assertEquals(sumValuesResult, BigDecimal.valueOf(1800));
+    }
+
+    @Test
     public void shouldValidateLaunchSuccessful() {
         Launch validLaunch = buildLaunch();
 
