@@ -156,6 +156,13 @@ public class LaunchServiceTest {
         Assertions.assertThrows(BusinessRuleException.class, () -> launchService.findById(invalidId));
     }
 
+    @Test
+    public void shouldValidateLaunchSuccessful() {
+        Launch launch = buildLaunch();
+
+        Assertions.assertDoesNotThrow(() -> launchService.validateLaunch(launch));
+    }
+
     private static Launch buildLaunch() {
         return Launch.builder()
                 .description("Test launch")
