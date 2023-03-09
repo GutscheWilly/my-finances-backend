@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -86,5 +87,32 @@ public class UserResourceTest {
                 .content(userJson);
 
         mockMvc.perform(userRequest).andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    public void shouldRegisterUserSuccessful() throws Exception {
+        String name = "user";
+        String email = "user@gmail.com";
+        String password = "123456";
+
+        UserDTO userDTO = UserDTO.builder().name(name).email(email).password(password).build();
+        User userAfterRegister = User.builder().id(1L).name(name).email(email).password(password).build();
+
+        Mockito.when(userService.registerUser(Mockito.any(User.class))).thenReturn(userAfterRegister);
+
+        String userJson = new ObjectMapper().writeValueAsString(userDTO);
+
+        MockHttpServletRequestBuilder userRequest = MockMvcRequestBuilders
+                .post(PATH_API)
+                .accept(JSON)
+                .contentType(JSON)
+                .content(userJson);
+
+        mockMvc.perform(userRequest).andExpectAll(
+                MockMvcResultMatchers.status().is(HttpStatus.CREATED.value()),
+                MockMvcResultMatchers.jsonPath("id").value(userAfterRegister.getId()),
+                MockMvcResultMatchers.jsonPath("name").value(userAfterRegister.getName()),
+                MockMvcResultMatchers.jsonPath("email").value(userAfterRegister.getEmail())
+        );
     }
 }
