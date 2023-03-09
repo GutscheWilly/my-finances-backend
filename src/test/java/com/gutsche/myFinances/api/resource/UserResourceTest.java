@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -29,7 +30,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureMockMvc
 public class UserResourceTest {
 
-    private static final String PATH_API = "/api/users";
+    private static final String API_PATH = "/api/users";
 
     private static final MediaType JSON = MediaType.APPLICATION_JSON;
 
@@ -49,24 +50,15 @@ public class UserResourceTest {
         String password = "123456";
 
         UserDTO userDTO = UserDTO.builder().name(name).email(email).password(password).build();
-        User user = User.builder().id(1L).name(name).email(email).password(password).build();
+        User loggedUser = User.builder().id(1L).name(name).email(email).password(password).build();
 
-        Mockito.when(userService.validateLogin(email, password)).thenReturn(user);
+        Mockito.when(userService.validateLogin(email, password)).thenReturn(loggedUser);
 
-        String userJson = new ObjectMapper().writeValueAsString(userDTO);
+        String userJson = buildUserJson(userDTO);
 
-        MockHttpServletRequestBuilder userRequest = MockMvcRequestBuilders
-                .post(PATH_API.concat("/login"))
-                .accept(JSON)
-                .contentType(JSON)
-                .content(userJson);
+        MockHttpServletRequestBuilder userRequest = buildUserRequest(HttpMethod.POST, "/login", userJson);
 
-        mockMvc.perform(userRequest).andExpectAll(
-                MockMvcResultMatchers.status().isOk(),
-                MockMvcResultMatchers.jsonPath("id").value(user.getId()),
-                MockMvcResultMatchers.jsonPath("name").value(user.getName()),
-                MockMvcResultMatchers.jsonPath("email").value(user.getEmail())
-        );
+        checkExpectedUserRequest(userRequest, HttpStatus.OK, loggedUser);
     }
 
     @Test
@@ -79,15 +71,11 @@ public class UserResourceTest {
 
         Mockito.when(userService.validateLogin(email, password)).thenThrow(LoginException.class);
 
-        String userJson = new ObjectMapper().writeValueAsString(userDTO);
+        String userJson = buildUserJson(userDTO);
 
-        MockHttpServletRequestBuilder userRequest = MockMvcRequestBuilders
-                .post(PATH_API.concat("/login"))
-                .accept(JSON)
-                .contentType(JSON)
-                .content(userJson);
+        MockHttpServletRequestBuilder userRequest = buildUserRequest(HttpMethod.POST, "/login", userJson);
 
-        mockMvc.perform(userRequest).andExpect(MockMvcResultMatchers.status().isBadRequest());
+        checkExpectedBadRequestStatus(userRequest);
     }
 
     @Test
@@ -101,20 +89,11 @@ public class UserResourceTest {
 
         Mockito.when(userService.registerUser(Mockito.any(User.class))).thenReturn(userAfterRegister);
 
-        String userJson = new ObjectMapper().writeValueAsString(userDTO);
+        String userJson = buildUserJson(userDTO);
 
-        MockHttpServletRequestBuilder userRequest = MockMvcRequestBuilders
-                .post(PATH_API)
-                .accept(JSON)
-                .contentType(JSON)
-                .content(userJson);
+        MockHttpServletRequestBuilder userRequest = buildUserRequest(HttpMethod.POST, "", userJson);
 
-        mockMvc.perform(userRequest).andExpectAll(
-                MockMvcResultMatchers.status().is(HttpStatus.CREATED.value()),
-                MockMvcResultMatchers.jsonPath("id").value(userAfterRegister.getId()),
-                MockMvcResultMatchers.jsonPath("name").value(userAfterRegister.getName()),
-                MockMvcResultMatchers.jsonPath("email").value(userAfterRegister.getEmail())
-        );
+        checkExpectedUserRequest(userRequest, HttpStatus.CREATED, userAfterRegister);
     }
 
     @Test
@@ -127,14 +106,37 @@ public class UserResourceTest {
 
         Mockito.when(userService.registerUser(Mockito.any(User.class))).thenThrow(BusinessRuleException.class);
 
-        String userJson = new ObjectMapper().writeValueAsString(userDTO);
+        String userJson = buildUserJson(userDTO);
 
-        MockHttpServletRequestBuilder userRequest = MockMvcRequestBuilders
-                .post(PATH_API)
+        MockHttpServletRequestBuilder userRequest = buildUserRequest(HttpMethod.POST, "", userJson);
+
+        checkExpectedBadRequestStatus(userRequest);
+    }
+
+    private String buildUserJson(UserDTO userDTO) throws Exception {
+        return new ObjectMapper().writeValueAsString(userDTO);
+    }
+
+    private MockHttpServletRequestBuilder buildUserRequest(HttpMethod httpMethod, String endpoint, String userJson) {
+        return MockMvcRequestBuilders
+                .request(httpMethod, API_PATH.concat(endpoint))
                 .accept(JSON)
                 .contentType(JSON)
                 .content(userJson);
+    }
 
-        mockMvc.perform(userRequest).andExpect(MockMvcResultMatchers.status().isBadRequest());
+    private void checkExpectedUserRequest(MockHttpServletRequestBuilder userRequest, HttpStatus expectedStatus, User expectedUser) throws Exception {
+        mockMvc.perform(userRequest).andExpectAll(
+                MockMvcResultMatchers.status().is(expectedStatus.value()),
+                MockMvcResultMatchers.jsonPath("id").value(expectedUser.getId()),
+                MockMvcResultMatchers.jsonPath("name").value(expectedUser.getName()),
+                MockMvcResultMatchers.jsonPath("email").value(expectedUser.getEmail())
+        );
+    }
+
+    private void checkExpectedBadRequestStatus(MockHttpServletRequestBuilder userRequest) throws Exception {
+        mockMvc.perform(userRequest).andExpect(
+                MockMvcResultMatchers.status().isBadRequest()
+        );
     }
 }
