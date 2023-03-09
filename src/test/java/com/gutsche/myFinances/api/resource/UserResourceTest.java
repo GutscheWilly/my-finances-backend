@@ -2,6 +2,7 @@ package com.gutsche.myFinances.api.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gutsche.myFinances.api.dto.UserDTO;
+import com.gutsche.myFinances.model.entity.Launch;
 import com.gutsche.myFinances.model.entity.User;
 import com.gutsche.myFinances.service.LaunchService;
 import com.gutsche.myFinances.service.UserService;
@@ -23,6 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.math.BigDecimal;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -54,9 +57,9 @@ public class UserResourceTest {
 
         Mockito.when(userService.validateLogin(email, password)).thenReturn(loggedUser);
 
-        String userJson = buildUserJson(userDTO);
+        String userJson = buildObjectJson(userDTO);
 
-        MockHttpServletRequestBuilder userRequest = buildUserRequest(HttpMethod.POST, "/login", userJson);
+        MockHttpServletRequestBuilder userRequest = buildJsonRequest(HttpMethod.POST, "/login", userJson);
 
         checkExpectedUserRequest(userRequest, HttpStatus.OK, loggedUser);
     }
@@ -71,11 +74,11 @@ public class UserResourceTest {
 
         Mockito.when(userService.validateLogin(email, password)).thenThrow(LoginException.class);
 
-        String userJson = buildUserJson(userDTO);
+        String userJson = buildObjectJson(userDTO);
 
-        MockHttpServletRequestBuilder userRequest = buildUserRequest(HttpMethod.POST, "/login", userJson);
+        MockHttpServletRequestBuilder userRequest = buildJsonRequest(HttpMethod.POST, "/login", userJson);
 
-        checkExpectedBadRequestStatus(userRequest);
+        checkExpectedRequestStatus(userRequest, HttpStatus.BAD_REQUEST);
     }
 
     @Test
@@ -89,9 +92,9 @@ public class UserResourceTest {
 
         Mockito.when(userService.registerUser(Mockito.any(User.class))).thenReturn(userAfterRegister);
 
-        String userJson = buildUserJson(userDTO);
+        String userJson = buildObjectJson(userDTO);
 
-        MockHttpServletRequestBuilder userRequest = buildUserRequest(HttpMethod.POST, "", userJson);
+        MockHttpServletRequestBuilder userRequest = buildJsonRequest(HttpMethod.POST, "", userJson);
 
         checkExpectedUserRequest(userRequest, HttpStatus.CREATED, userAfterRegister);
     }
@@ -106,37 +109,51 @@ public class UserResourceTest {
 
         Mockito.when(userService.registerUser(Mockito.any(User.class))).thenThrow(BusinessRuleException.class);
 
-        String userJson = buildUserJson(userDTO);
+        String userJson = buildObjectJson(userDTO);
 
-        MockHttpServletRequestBuilder userRequest = buildUserRequest(HttpMethod.POST, "", userJson);
+        MockHttpServletRequestBuilder userRequest = buildJsonRequest(HttpMethod.POST, "", userJson);
 
-        checkExpectedBadRequestStatus(userRequest);
+        checkExpectedRequestStatus(userRequest, HttpStatus.BAD_REQUEST);
     }
 
-    private String buildUserJson(UserDTO userDTO) throws Exception {
-        return new ObjectMapper().writeValueAsString(userDTO);
+    @Test
+    public void shouldReturnStatusOkWhenGetBalanceUser() throws Exception {
+        User user = User.builder().id(1L).name("user").email("user@gmail.com").password("1234").build();
+
+        Mockito.when(userService.findById(user.getId())).thenReturn(user);
+
+        Mockito.when(launchService.sumValuesFromFilteredLaunch(Mockito.any(Launch.class))).thenReturn(BigDecimal.valueOf(100));
+
+        MockHttpServletRequestBuilder balanceRequest = MockMvcRequestBuilders.get(API_PATH.concat("/" + user.getId() + "/balance"));
+
+        checkExpectedRequestStatus(balanceRequest, HttpStatus.OK);
     }
 
-    private MockHttpServletRequestBuilder buildUserRequest(HttpMethod httpMethod, String endpoint, String userJson) {
+    private String buildObjectJson(Object object) throws Exception {
+        return new ObjectMapper().writeValueAsString(object);
+    }
+
+    private MockHttpServletRequestBuilder buildJsonRequest(HttpMethod httpMethod, String endpoint, String json) {
         return MockMvcRequestBuilders
                 .request(httpMethod, API_PATH.concat(endpoint))
                 .accept(JSON)
                 .contentType(JSON)
-                .content(userJson);
+                .content(json);
     }
 
-    private void checkExpectedUserRequest(MockHttpServletRequestBuilder userRequest, HttpStatus expectedStatus, User expectedUser) throws Exception {
+    private void checkExpectedUserRequest(MockHttpServletRequestBuilder userRequest, HttpStatus expectedHttpStatus, User expectedUser) throws Exception {
+        checkExpectedRequestStatus(userRequest, expectedHttpStatus);
+
         mockMvc.perform(userRequest).andExpectAll(
-                MockMvcResultMatchers.status().is(expectedStatus.value()),
                 MockMvcResultMatchers.jsonPath("id").value(expectedUser.getId()),
                 MockMvcResultMatchers.jsonPath("name").value(expectedUser.getName()),
                 MockMvcResultMatchers.jsonPath("email").value(expectedUser.getEmail())
         );
     }
 
-    private void checkExpectedBadRequestStatus(MockHttpServletRequestBuilder userRequest) throws Exception {
-        mockMvc.perform(userRequest).andExpect(
-                MockMvcResultMatchers.status().isBadRequest()
+    private void checkExpectedRequestStatus(MockHttpServletRequestBuilder request, HttpStatus expectedHttpStatus) throws Exception {
+        mockMvc.perform(request).andExpect(
+                MockMvcResultMatchers.status().is(expectedHttpStatus.value())
         );
     }
 }
