@@ -117,7 +117,7 @@ public class UserResourceTest {
     }
 
     @Test
-    public void shouldReturnStatusOkWhenGetBalanceUser() throws Exception {
+    public void shouldReturnStatusOkWhenRequestBalanceUserSuccessful() throws Exception {
         User user = User.builder().id(1L).name("user").email("user@gmail.com").password("1234").build();
 
         Mockito.when(userService.findById(user.getId())).thenReturn(user);
@@ -127,6 +127,15 @@ public class UserResourceTest {
         MockHttpServletRequestBuilder balanceRequest = MockMvcRequestBuilders.get(API_PATH.concat("/" + user.getId() + "/balance"));
 
         checkExpectedRequestStatus(balanceRequest, HttpStatus.OK);
+    }
+
+    @Test
+    public void shouldReturnBadRequestWhenBalanceUserThrowsException() throws Exception {
+        Mockito.when(userService.findById(Mockito.any(Long.class))).thenThrow(BusinessRuleException.class);
+
+        MockHttpServletRequestBuilder balanceRequest = MockMvcRequestBuilders.get(API_PATH.concat("/1/balance"));
+
+        checkExpectedRequestStatus(balanceRequest, HttpStatus.BAD_REQUEST);
     }
 
     private String buildObjectJson(Object object) throws Exception {
