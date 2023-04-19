@@ -88,9 +88,18 @@ public class LaunchResource {
     }
 
     @GetMapping
-    public ResponseEntity<?> search(@RequestBody LaunchDTO launchDTO) {
+    public ResponseEntity<?> search(
+            @RequestParam(value = "userId") Long userId,
+            @RequestParam(value = "launchId", required = false) Long launchId,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "month", required = false) Integer month,
+            @RequestParam(value = "year", required = false) Integer year,
+            @RequestParam(value = "type", required = false) LaunchType type
+    )
+    {
         try {
-            Launch filteredLaunch = buildLaunch(launchDTO);
+            User user = userService.findById(userId);
+            Launch filteredLaunch = Launch.builder().user(user).id(launchId).description(description).month(month).year(year).type(type).build();
             List<Launch> foundLaunches = launchService.search(filteredLaunch);
             return ResponseEntity.ok().body(foundLaunches);
         }
@@ -100,7 +109,7 @@ public class LaunchResource {
     }
 
     private Launch buildLaunch(LaunchDTO launchDTO) {
-        User user = userService.findById(launchDTO.getUser());
+        User user = userService.findById(launchDTO.getUserId());
         LaunchType type = null;
         LaunchStatus status = null;
 
