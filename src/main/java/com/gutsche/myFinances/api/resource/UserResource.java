@@ -3,6 +3,7 @@ package com.gutsche.myFinances.api.resource;
 import com.gutsche.myFinances.api.dto.UserDTO;
 import com.gutsche.myFinances.model.entity.Launch;
 import com.gutsche.myFinances.model.entity.User;
+import com.gutsche.myFinances.model.entity.enums.LaunchStatus;
 import com.gutsche.myFinances.model.entity.enums.LaunchType;
 import com.gutsche.myFinances.service.LaunchService;
 import com.gutsche.myFinances.service.UserService;
@@ -58,8 +59,8 @@ public class UserResource {
         try {
             User user = userService.findById(id);
 
-            Launch filteredRevenue = Launch.builder().user(user).type(LaunchType.REVENUE).build();
-            Launch filteredExpense = Launch.builder().user(user).type(LaunchType.EXPENSE).build();
+            Launch filteredRevenue = Launch.builder().user(user).type(LaunchType.REVENUE).status(LaunchStatus.CONFIRMED).build();
+            Launch filteredExpense = Launch.builder().user(user).type(LaunchType.EXPENSE).status(LaunchStatus.CONFIRMED).build();
 
             BigDecimal revenues = launchService.sumValuesFromFilteredLaunch(filteredRevenue);
             BigDecimal expenses = launchService.sumValuesFromFilteredLaunch(filteredExpense);
