@@ -40,7 +40,7 @@ public class UserResource {
         }
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
         User user = buildUser(userDTO);
 
